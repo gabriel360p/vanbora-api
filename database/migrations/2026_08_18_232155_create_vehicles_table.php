@@ -13,6 +13,11 @@ return new class extends Migration
     {
         Schema::create('vehicles', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('user_id')->constrained();
+            $table->string('photo');
+            $table->string('plate');
+            $table->integer('capacity');
+            $table->boolean('status')->default(true);
             $table->timestamps();
         });
     }
