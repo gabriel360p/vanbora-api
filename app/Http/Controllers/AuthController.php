@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use Tymon\JWTAuth\Facades\JWTAuth;
+use Illuminate\Support\Facades\Route;
 class AuthController extends Controller
 {
 
@@ -15,20 +16,33 @@ class AuthController extends Controller
     public function register(Request $request)
     {
 
+        $avatar = $request->avatar? $request->avatar : 'foto-perfil';
+        
+        // return response()->json([$request->all()]);
+        
         $user = User::create([
             "name"=>$request->input('name'),
             "email"=>$request->input('email'),
             "password"=>Hash::make( $request->input('password')),
-            "avatar"=>$request->input('avatar'),
             "cpf"=>$request->input('cpf'),
             "phone1"=>$request->input('phone1'),
             "phone2"=>$request->input('phone2'),
-            "role"=>$request->input('role')
+            "avatar"=>$avatar[0],
         ]);
-             Auth::login($user);
-             $token = JWTAuth::fromUser($user);
-            return response(json_encode($user),200)->header('Authorization','Bearer ',$token)->header('user_id',$user->id);
-
+            // $userData=(object) [
+            //     'user_id'=>$user->id,
+            //     'name'=>$user->name,
+            //     'email'=>$user->email,
+            //     'avatar'=>$user->avatar,
+            //     'phone1'=>$user->phone1,
+            //     'phone2'=>$user->phone2,
+            //     'cpf'=>$user->cpf,
+            //     'role'=>$user->role,
+            //     // 'trips'=>$user->trips,
+            //     // 'vehicles'=>$user->vehicles,
+            //  ];
+             
+            return response("Salvo com sucesso",201);
     }
 
        public function login(Request $request)
@@ -36,34 +50,31 @@ class AuthController extends Controller
         $user = User::where('email', $request->email)->first();
         if(!$user){
              $user = User::where('cpf', $request->email)->first();
+             //A gente recuperou o usuário para validar as informações
         }
         if($user && Hash::check($request->input('password'), $user->password)) {
-            // return response(json_encode($user),200)->header('Authorization:',' Bearer 123');
              Auth::login($user);
+             
+             //Quando vamos criar o token, a gente insere o id do usuário no token
+             //dessa forma podemos usar o token pra validar se ele é válido e depois
+             //recuperar o usuário usando a informação do id que está armazenado no token
+             
              $token = JWTAuth::fromUser($user);
-
-             $userData=(object) [
-                'name'=>$user->name,
-                'email'=>$user->email,
-                'avatar'=>$user->avatar,
-                'phone1'=>$user->phone1,
-                'phone2'=>$user->phone2,
-                'cpf'=>$user->cpf,
-                'role'=>$user->role,
-                // 'trips'=>$user->trips,
-                // 'vehicles'=>$user->vehicles,
-             ];
-
-            return response(json_encode($userData),200)->cookie(
+             
+            return response(json_encode(Auth::user()),200)
+            ->cookie(
                 'access_token',
                 $token,
                 60,
                 '/',
                 null,
-                true,
-                true,    //marca como httpOnly
+                false, // Secure
+                true,  // HttpOnly
+                false,
+                'Lax'
             );
-        }else{
+        }
+        else{
             // var_dump($user);
             return response('Usuário não encontrado',401);
         }
