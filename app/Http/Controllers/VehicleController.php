@@ -13,7 +13,9 @@ class VehicleController extends Controller
 
     public function store(Request $request){
         //pegar todos os carros
-        Vehicle::create($request->all());
+        // var_dump($request->input('vehicle_photo'));
+        // Vehicle::create($request->all());
+        return response()->json(["data"=>$request->all()],200);
     }
     public function show(){
         //pegar todos os carros

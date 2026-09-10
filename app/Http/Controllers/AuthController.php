@@ -12,14 +12,11 @@ use Illuminate\Support\Facades\Route;
 class AuthController extends Controller
 {
 
- 
     public function register(Request $request)
     {
 
         $avatar = $request->avatar? $request->avatar : 'foto-perfil';
-        
-        // return response()->json([$request->all()]);
-        
+                
         $user = User::create([
             "name"=>$request->input('name'),
             "email"=>$request->input('email'),
@@ -29,20 +26,22 @@ class AuthController extends Controller
             "phone2"=>$request->input('phone2'),
             "avatar"=>$avatar[0],
         ]);
-            // $userData=(object) [
-            //     'user_id'=>$user->id,
-            //     'name'=>$user->name,
-            //     'email'=>$user->email,
-            //     'avatar'=>$user->avatar,
-            //     'phone1'=>$user->phone1,
-            //     'phone2'=>$user->phone2,
-            //     'cpf'=>$user->cpf,
-            //     'role'=>$user->role,
-            //     // 'trips'=>$user->trips,
-            //     // 'vehicles'=>$user->vehicles,
-            //  ];
-             
-            return response("Salvo com sucesso",201);
+
+        //criando e ja logando o usuário
+        Auth::login($user);
+        $token = JWTAuth::fromUser($user);
+        return response(json_encode(Auth::user()),200)
+                    ->cookie(
+                        'access_token',
+                        $token,
+                        60,
+                        '/',
+                        null,
+                        false, // Secure
+                        true,  // HttpOnly
+                        false,
+                        'Lax'
+                    );
     }
 
        public function login(Request $request)
@@ -58,7 +57,7 @@ class AuthController extends Controller
              //Quando vamos criar o token, a gente insere o id do usuário no token
              //dessa forma podemos usar o token pra validar se ele é válido e depois
              //recuperar o usuário usando a informação do id que está armazenado no token
-             
+
              $token = JWTAuth::fromUser($user);
              
             return response(json_encode(Auth::user()),200)
@@ -75,12 +74,32 @@ class AuthController extends Controller
             );
         }
         else{
-            // var_dump($user);
             return response('Usuário não encontrado',401);
         }
     }
-    public function logout(){
+    public function logout(Request $request){
+
+        //Deslogando o usuário dos serviços do laravel
         Auth::logout();
-        return response('Logout realizado',200);
+
+        //recuperando o token
+        $token=$request->cookie('access_token');
+        
+        if ($token) {
+                try {
+                    JWTAuth::setToken($token);
+                    //invalidando o token colocado em referência 
+                    JWTAuth::invalidate();
+                } catch (\Exception $e) {
+                    // Token já inválido/expirado
+                }
+            }
+
+        return response('Logout realizado',200)
+        //mandando um comando para o navegador "apagar o token"
+        ->withoutCookie('access_token');
+    }
+    public function update(Request $request){
+
     }
 }
