@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('vehicles', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained();
-            $table->string('photo');
+            $table->json('photos_path');
             $table->string('plate');
             $table->integer('capacity');
             $table->boolean('status')->default(true);
