@@ -1,3 +1,5 @@
+use App\Models\User;
+use App\Models\Trip;
 <?php
 
 use Illuminate\Database\Migrations\Migration;
