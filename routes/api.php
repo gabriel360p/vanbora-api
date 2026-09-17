@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\DriverController;
 use App\Http\Controllers\VehicleController;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\AuthController;
@@ -29,4 +30,6 @@ Route::get('/me',function(Request $request) {
 
 
 Route::post('/vehicle/store',[VehicleController::class,'store'])->middleware('jwt');
+
+Route::post('/driver/update',[DriverController::class,'update'])->middleware('jwt');
 
