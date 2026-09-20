@@ -3,20 +3,32 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use Illuminate\Http\File;
 use Illuminate\Http\Request;
 
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Tymon\JWTAuth\Facades\JWTAuth;
-use Illuminate\Support\Facades\Route;
 class AuthController extends Controller
 {
 
     public function register(Request $request)
     {
 
-        $avatar = $request->avatar? $request->avatar : 'foto-perfil';
-                
+        // $avatar = $request->hasFile('avatar');
+        // return response()->json(['teste'=>$avatar]);
+
+        if($request->hasFile('avatar')){
+            $file = $request->file('avatar');
+            // return response($file);
+
+                if($file->isValid()){
+               $photoPATH = Storage::disk('public')->putFile('avatars', new File($file));
+                $photoURL= Storage::url($photoPATH);
+            }
+        }
+
         $user = User::create([
             "name"=>$request->input('name'),
             "email"=>$request->input('email'),
@@ -24,7 +36,7 @@ class AuthController extends Controller
             "cpf"=>$request->input('cpf'),
             "phone1"=>$request->input('phone1'),
             "phone2"=>$request->input('phone2'),
-            "avatar"=>$avatar[0],
+            "avatar"=>$photoPATH,
         ]);
 
         //criando e ja logando o usuário
@@ -46,9 +58,9 @@ class AuthController extends Controller
 
        public function login(Request $request)
     {
-        $user = User::where('email', $request->email)->first();
+        $user = User::where('email', $request->input('email'))->first();
         if(!$user){
-             $user = User::where('cpf', $request->email)->first();
+             $user = User::where('cpf', $request->input('email'))->first();
              //A gente recuperou o usuário para validar as informações
         }
         if($user && Hash::check($request->input('password'), $user->password)) {
@@ -74,7 +86,7 @@ class AuthController extends Controller
             );
         }
         else{
-            return response('Usuário não encontrado',401);
+            return response('Dados incorretos',401);
         }
     }
     public function logout(Request $request){
