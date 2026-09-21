@@ -71,8 +71,9 @@ class AuthController extends Controller
              //recuperar o usuário usando a informação do id que está armazenado no token
 
              $token = JWTAuth::fromUser($user);
-             
-            return response(json_encode(Auth::user()),200)
+             $user=Auth::user();
+             $user->photoUrl=Storage::url($user->avatar);
+            return response(json_encode($user),200)
             ->cookie(
                 'access_token',
                 $token,
