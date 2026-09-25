@@ -18,6 +18,9 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained();
             $table->json('photos_path');
             $table->string('plate');
+            $table->string('color');
+            $table->string('aditional')->nullable();
+            $table->string('model');
             $table->integer('capacity');
             $table->boolean('status')->default(true);
             $table->timestamps();

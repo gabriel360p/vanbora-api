@@ -11,10 +11,20 @@ use Illuminate\Http\File;
 class VehicleController extends Controller
 {
  public function index(){
-        //pegar todos os carros
+        //pegar todos os carros do usuário
+    $vehicles = Vehicle::where('user_id',Auth::user()->id)->get();
+    foreach($vehicles as $vehicle){
+        $photos = $vehicle->photos_path;
+        foreach($photos as $key => $photo){
+            $photos[$key]=Storage::url($photo);
+            }
+    $vehicle->photos_path=$photos;
+    }
+    return response($vehicles,200);
     }
 
     public function store(Request $request){
+
         $array_paths=[];
         if($request->hasFile('vehicle_photo')){
         
@@ -32,23 +42,26 @@ class VehicleController extends Controller
         $vehicle = Vehicle::create([
             "user_id"=>Auth::user()->id,
             "plate"=>$request->input('plate'),
+            "model"=>$request->input('model'),
+            "color"=>$request->input('color'),
+            "aditional"=>$request->input('aditional'),
             "photos_path"=>$array_paths,
             "capacity"=>$request->input('capacity'),
             // "status"=>$request->input('status'),
         ]);
-
-        
+   
         return response()->json(['vehicle'=>$vehicle]);
     }
     public function show(){
-        //pegar todos os carros
+        //mostra um carro
     }
-    public function update(){
-        //pegar todos os carros
+    public function edit(){
+    // $vehicles = Vehicle::where('user_id',Auth::user()->id);
+    //     return response($vehicles,200);
     }
-
-    public function updatePhoto(){
-    //add novas fotos
+    public function update(Request $request){
+        //pegar todos os carros
+        return response()->json(['dados'=>$request->all()]);
     }
     
     public function destroy(){

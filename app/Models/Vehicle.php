@@ -9,7 +9,7 @@ use App\Models\Trip;
 class Vehicle extends Model
 {
     protected $fillable = [
-        "user_id","plate","capacity","status","photos_path",
+        "user_id","plate","capacity","status","photos_path","model","color","aditional",
     ];
 
     protected $casts=[

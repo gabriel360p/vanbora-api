@@ -31,5 +31,9 @@ Route::get('/me',function(Request $request) {
 
 Route::post('/vehicle/store',[VehicleController::class,'store'])->middleware('jwt');
 
+Route::post('/vehicle/update',[VehicleController::class,'update'])->middleware('jwt');
+Route::get('/vehicle/edit',[VehicleController::class,'edit'])->middleware('jwt');
+Route::get('/vehicle',[VehicleController::class,'index'])->middleware('jwt');
+
 Route::post('/driver/update',[DriverController::class,'update'])->middleware('jwt');
 
