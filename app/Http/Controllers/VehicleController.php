@@ -55,12 +55,14 @@ class VehicleController extends Controller
     public function show(){
         //mostra um carro
     }
-    public function edit(){
-    // $vehicles = Vehicle::where('user_id',Auth::user()->id);
-    //     return response($vehicles,200);
+    public function edit(Request $request,$id){
+    $vehicle = Vehicle::findOrFail($id);
+        return response($vehicle,200);
     }
     public function update(Request $request){
         //pegar todos os carros
+
+        //falta fazer o update no banco de dados
         return response()->json(['dados'=>$request->all()]);
     }
     
